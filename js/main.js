@@ -36,6 +36,9 @@ var pointerMove = function pointerMove(e) {
 }
 var pointerCancel = function pointerLeave(e) {
   state = false
+  var x = Board.getPointerPos(e)
+  var width = getLineWidth(e)
+  sock.send( state+":" + x.x + ":" + x.y + ":" + width);
   console.log(Board.getPointerPos(e))
   Pointer.destruct(e.pointerId);
 }
