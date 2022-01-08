@@ -7,25 +7,35 @@ FloatingButton.init();
 FloatingButton.onClick = Board.clearMemory.bind(Board);
 Pointer.onEmpty = _.debounce(Board.storeMemory.bind(Board), 1500);
 
+var sock = new WebSocket('wss://wsecho.kokoa.dev/testdraw');
+var state = false
+
 // Attach event listener
 var pointerDown = function pointerDown(e) {
   // Initialise pointer
   var pointer = new Pointer(e.pointerId);
   pointer.set(Board.getPointerPos(e));
-
+  console.log(Board.getPointerPos(e))
   // Get function type
   Pen.setFuncType(e);
   if (Pen.funcType === Pen.funcTypes.menu) Board.clearMemory();
   else drawOnCanvas(e, pointer, Pen);
+  state = true
 }
 var pointerMove = function pointerMove(e) {
   if (Pen.funcType && (Pen.funcType.indexOf(Pen.funcTypes.draw) !== -1)) {
 
+    var x = Board.getPointerPos(e)
+    sock.send( state+":" + x.x + ":" + x.y);
+
     var pointer = Pointer.get(e.pointerId);
+
     drawOnCanvas(e, pointer, Pen);
   }
 }
 var pointerCancel = function pointerLeave(e) {
+  state = false
+  console.log(Board.getPointerPos(e))
   Pointer.destruct(e.pointerId);
 }
 Board.dom.addEventListener('pointerdown', pointerDown);
