@@ -26,7 +26,8 @@ var pointerMove = function pointerMove(e) {
   if (Pen.funcType && (Pen.funcType.indexOf(Pen.funcTypes.draw) !== -1)) {
 
     var x = Board.getPointerPos(e)
-    sock.send( state+":" + x.x + ":" + x.y);
+    var width = getLineWidth(e)
+    sock.send( state+":" + x.x + ":" + x.y + ":" + width);
 
     var pointer = Pointer.get(e.pointerId);
 
@@ -61,5 +62,19 @@ function drawOnCanvas(e, pointerObj, Pen) {
 
     pointerObj.pos0.x = pointerObj.pos1.x;
     pointerObj.pos0.y = pointerObj.pos1.y;
+  }
+}
+
+var getLineWidth = function getLineWidth(e) {
+  switch (e.pointerType) {
+    case 'touch': {
+      if (e.width < 10 && e.height < 10) {
+        return (e.width + e.height) * 2 + 10;
+      } else {
+        return (e.width + e.height - 40) / 2;
+      }
+    }
+    case 'pen': return e.pressure * 8;
+    default: return (e.pressure) ? e.pressure * 8 : 4;
   }
 }
