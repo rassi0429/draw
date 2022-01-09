@@ -7,8 +7,22 @@ FloatingButton.init();
 FloatingButton.onClick = Board.clearMemory.bind(Board);
 Pointer.onEmpty = _.debounce(Board.storeMemory.bind(Board), 1500);
 
-var sock = new WebSocket('wss://wsecho.kokoa.dev/testdraw');
-var state = false
+let state = false
+const searchParams = new URLSearchParams(window.location.search)
+let ws_url = 'wss://wsecho.kokoa.dev/canvassync/' + (searchParams.get("name") || "test");
+
+let sock;
+
+function ws_connect(){
+  sock = new WebSocket(ws_url);
+
+  sock.onclose = function incoming(event) {
+    ws_connect();
+  };
+}
+
+// 最初につなげる
+ws_connect();
 
 // Attach event listener
 var pointerDown = function pointerDown(e) {
